@@ -147,3 +147,18 @@ bool osharp::gui::abstractions::PollNext( handle & handle )
 	}
 	return msg.message != WM_QUIT && msg.message != 0; 
 }
+
+int osharp::gui::MonitorWidth( )
+{
+	return GetSystemMetrics( SM_CXSCREEN );
+}
+
+int osharp::gui::MonitorHeight( )
+{
+	return GetSystemMetrics( SM_CYSCREEN );
+}
+
+osharp::gui::Vector2i osharp::gui::MonitorSize( )
+{
+	return{ MonitorWidth( ), MonitorHeight( ) };
+}

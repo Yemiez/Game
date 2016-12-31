@@ -211,6 +211,13 @@ namespace osharp { namespace gui {
 		key_dot = 0xBE
 	};
 
+	extern int MonitorWidth( );
+
+	extern int MonitorHeight( );
+
+	extern Vector2i MonitorSize( );
+	
+
 	template<typename _Codec = cvt::codec_cvt<>>
 	class window;
 

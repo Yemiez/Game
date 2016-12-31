@@ -109,6 +109,11 @@ osharp::gui::d3d9_font & osharp::gui::d3d9::get_default_font( )
 	return default_;
 }
 
+const osharp::gui::d3d9_font & osharp::gui::d3d9::get_default_font( ) const
+{
+	return default_;
+}
+
 void osharp::gui::d3d9::set_default_font( d3d9_font & font )
 { 
 	if ( default_.valid( ) )
@@ -142,8 +147,8 @@ void osharp::gui::d3d9::create( handle wnd )
 	GetWindowRect( *reinterpret_cast< HWND* >( wnd.native_ptr( ) ), &rect );
 	D3DPRESENT_PARAMETERS params
 	{
-		static_cast<UINT>( rect.bottom - rect.top ),
-		static_cast<UINT>( rect.right - rect.left ),
+		0u,
+        0u,
 		D3DFMT_A8R8G8B8,
 		0,
 		D3DMULTISAMPLE_NONE,

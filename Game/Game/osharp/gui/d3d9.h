@@ -188,6 +188,18 @@ namespace osharp { namespace gui {
 		static type WhiteSmoke = 0xFFF5F5F5u;
 		static type Yellow = 0xFFFFFF00u;
 		static type YellowGreen = 0xFF9ACD32u;
+
+		template<typename R, typename G, typename B>
+		static type from( R r, G g, B b )
+		{
+			return static_cast<type>((static_cast<unsigned char>(r) | static_cast<unsigned char>(g) << 8) | (static_cast<unsigned char>(b) << 16));
+		}
+
+		template<typename R, typename G, typename B, typename A>
+		static type from( R r, G g, B b, A a )
+		{
+			return static_cast<type>(((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff));
+		}
 	};
 
 	class d3d9;
@@ -316,6 +328,8 @@ namespace osharp { namespace gui {
 		}
 
 		d3d9_font &get_default_font( );
+
+		const d3d9_font &get_default_font( ) const;
 
 		void set_default_font( d3d9_font &font );
 

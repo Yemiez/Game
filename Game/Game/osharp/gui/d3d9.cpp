@@ -44,14 +44,14 @@ void osharp::gui::d3d9::release( )
 	}
 }
 
-void osharp::gui::d3d9::reset( Vector2i size, handle & wnd )
+void osharp::gui::d3d9::reset( handle & wnd )
 { 
 	RECT rect;
 	GetWindowRect( *reinterpret_cast< HWND* >( wnd.native_ptr( ) ), &rect );
 	D3DPRESENT_PARAMETERS params
 	{
-		static_cast<UINT>( size.x ),
-		static_cast<UINT>( size.y ),
+		0u,
+		0u,
 		D3DFMT_A8R8G8B8,
 		0,
 		D3DMULTISAMPLE_NONE,
@@ -224,14 +224,16 @@ void osharp::gui::d3d9_font::create( d3d9 & renderer, d3d9_font & font, std::str
 		throw d3d9_error( res, constexprs::str_obf( "Failed to create Font object" ).str( ) );
 }
 
-void osharp::gui::d3d9_font_struct::enable_antialias( )
+osharp::gui::d3d9_font_struct& osharp::gui::d3d9_font_struct::enable_antialias( )
 {
 	Quality = ANTIALIASED_QUALITY;
+	return *this;
 }
 
-void osharp::gui::d3d9_font_struct::disable_antialias( )
+osharp::gui::d3d9_font_struct& osharp::gui::d3d9_font_struct::disable_antialias( )
 { 
 	Quality = DEFAULT_QUALITY;
+	return *this;
 }
 
 osharp::gui::d3d9_line::d3d9_line( )
@@ -241,7 +243,7 @@ osharp::gui::d3d9_line::d3d9_line( )
 	color( )
 { }
 
-osharp::gui::d3d9_line::d3d9_line( Vector2f start, Vector2f end, float width, std::uint32_t color )
+osharp::gui::d3d9_line::d3d9_line( Vector2i start, Vector2i end, float width, std::uint32_t color )
 	: start( start ),
 	end( end ),
 	width( width ),
@@ -254,8 +256,8 @@ void osharp::gui::d3d9_line::draw( const d3d9 & renderer ) const
 	line->SetWidth( width );
 	D3DXVECTOR2 vertices[2]
 	{
-		{ start.x, start.y },
-		{ end.x, end.y }
+		{ static_cast<float>( start.x ), static_cast<float>( start.y ) },
+		{ static_cast<float>( end.x ), static_cast<float>( end.y ) }
 	};
 	line->Draw( vertices, 2, color );
 }

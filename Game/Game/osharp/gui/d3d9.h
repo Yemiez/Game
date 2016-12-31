@@ -220,8 +220,8 @@ namespace osharp { namespace gui {
 			CharSet( 1l ), OutputPrecision( 0l ), Quality( 0l ),
 			PitchAndFamily( 0l | (0l << 4l) )
 		{ }
-		void enable_antialias( );
-		void disable_antialias( );
+		d3d9_font_struct& enable_antialias( );
+		d3d9_font_struct& disable_antialias( );
 
 		int Height;
 		unsigned int Width,
@@ -303,7 +303,7 @@ namespace osharp { namespace gui {
 
 		void release( );
 
-		void reset( Vector2i size, handle &wnd );
+		void reset( handle &wnd );
 
 		void draw_string( const d3d9_font &font, 
 						  const std::string &str, 
@@ -379,7 +379,7 @@ namespace osharp { namespace gui {
 		}
 
 	public:
-		Vector2i get_size_advanced( ) const
+		Vector2i get_size_of_trailing_spaces( ) const
 		{
 			return cached_advanced_size_;
 		}
@@ -432,9 +432,19 @@ namespace osharp { namespace gui {
 				cached_size_ = font_.get_size( str_.c_str( ) );
 				space_.y = manip_size.y;
 				space_.x = manip_size.x - ( dot_size.x * 2 );
-
-				// advanced
-				
+				if ( !str_.empty( ) && str_.back( ) == codec_cvt::cvt( ' ' ) )
+				{
+					auto count = std::count_if( std::rbegin( str_ ), std::rend( str_ ), [non_sp = true]( const auto &elem )mutable
+					{
+						if ( !non_sp )
+							return false;
+						else if ( elem != codec_cvt::cvt( ' ' ) )
+							non_sp = false;
+						return non_sp;
+					} );
+					cached_advanced_size_.x = count * space_.x;
+					cached_advanced_size_.y = space_.y;
+				}
 			}
 		}
 
@@ -449,8 +459,8 @@ namespace osharp { namespace gui {
 		: public d3d9_renderable
 	{
 		d3d9_line( );
-		d3d9_line( Vector2f start, Vector2f end, float width, std::uint32_t color );
-		Vector2f start, end;
+		d3d9_line( Vector2i start, Vector2i end, float width, std::uint32_t color );
+		Vector2i start, end;
 		float width;
 		std::uint32_t color;
 		virtual void draw( const d3d9 &renderer ) const;

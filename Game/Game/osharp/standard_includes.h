@@ -1,0 +1,10 @@
+#pragma once
+#include <vector>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <iostream>
+#include <functional>
+#include <memory>
+#include <thread>
+#include "formatting\utf.h"

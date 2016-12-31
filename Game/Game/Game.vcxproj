@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8C151DC8-4250-4766-AEFE-5795593E835D}</ProjectGuid>
+    <RootNamespace>Game</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\build\release\</OutDir>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28February 2010%29\Include;C:\Users\Ägaren\Source\Repos\Game\Game\ext\zlib\include;C:\Users\Ägaren\Source\Repos\Game\Game\Game\ybf;C:\Users\Ägaren\Source\Repos\Game\Game\Game\osharp;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28February 2010%29\Lib\x86;C:\Users\Ägaren\Source\Repos\Game\Game\ext\zlib\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28February 2010%29\Include;C:\Users\Ägaren\Source\Repos\Game\Game\ext\zlib\include;C:\Users\Ägaren\Source\Repos\Game\Game\Game\ybf;C:\Users\Ägaren\Source\Repos\Game\Game\Game\osharp;$(IncludePath)</IncludePath>
+    <OutDir>..\build\debug\</OutDir>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28February 2010%29\Lib\x86;C:\Users\Ägaren\Source\Repos\Game\Game\ext\zlib\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>zdll.lib; d3dx9.lib; d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>zdll.lib; d3dx9.lib; d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="osharp\concurrency\async_io.h" />
+    <ClInclude Include="osharp\concurrency\functional.h" />
+    <ClInclude Include="osharp\concurrency\synchronized_object.h" />
+    <ClInclude Include="osharp\constexpr\string.h" />
+    <ClInclude Include="osharp\formatting\utf.h" />
+    <ClInclude Include="osharp\gui\components\component.h" />
+    <ClInclude Include="osharp\gui\components\pallete.h" />
+    <ClInclude Include="osharp\gui\d3d9.h" />
+    <ClInclude Include="osharp\gui\dimensions.h" />
+    <ClInclude Include="osharp\gui\handle.h" />
+    <ClInclude Include="osharp\gui\popup.h" />
+    <ClInclude Include="osharp\gui\window.h" />
+    <ClInclude Include="osharp\osharp.h" />
+    <ClInclude Include="osharp\spelling\dictionary.h" />
+    <ClInclude Include="osharp\spelling\spell_check.h" />
+    <ClInclude Include="osharp\standard_includes.h" />
+    <ClInclude Include="osharp\tokenizing\alphabet.h" />
+    <ClInclude Include="osharp\tokenizing\iterator.h" />
+    <ClInclude Include="osharp\tokenizing\token.h" />
+    <ClInclude Include="ybf\ybf\ascii.h" />
+    <ClInclude Include="ybf\ybf\bundle.h" />
+    <ClInclude Include="ybf\ybf\byte_array.h" />
+    <ClInclude Include="ybf\ybf\double.h" />
+    <ClInclude Include="ybf\ybf\editor.h" />
+    <ClInclude Include="ybf\ybf\element.h" />
+    <ClInclude Include="ybf\ybf\float.h" />
+    <ClInclude Include="ybf\ybf\header.h" />
+    <ClInclude Include="ybf\ybf\int.h" />
+    <ClInclude Include="ybf\ybf\long.h" />
+    <ClInclude Include="ybf\ybf\short.h" />
+    <ClInclude Include="ybf\ybf\uint.h" />
+    <ClInclude Include="ybf\ybf\ulong.h" />
+    <ClInclude Include="ybf\ybf\unicode.h" />
+    <ClInclude Include="ybf\ybf\utils.h" />
+    <ClInclude Include="ybf\ybf.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="osharp\gui\d3d9.cpp" />
+    <ClCompile Include="osharp\gui\handle.cpp" />
+    <ClCompile Include="osharp\gui\popup.cpp" />
+    <ClCompile Include="osharp\gui\window.cpp" />
+    <ClCompile Include="ybf\ybf\ascii.cpp" />
+    <ClCompile Include="ybf\ybf\bundle.cpp" />
+    <ClCompile Include="ybf\ybf\byte_array.cpp" />
+    <ClCompile Include="ybf\ybf\double.cpp" />
+    <ClCompile Include="ybf\ybf\element.cpp" />
+    <ClCompile Include="ybf\ybf\float.cpp" />
+    <ClCompile Include="ybf\ybf\header.cpp" />
+    <ClCompile Include="ybf\ybf\int.cpp" />
+    <ClCompile Include="ybf\ybf\long.cpp" />
+    <ClCompile Include="ybf\ybf\short.cpp" />
+    <ClCompile Include="ybf\ybf\uint.cpp" />
+    <ClCompile Include="ybf\ybf\ulong.cpp" />
+    <ClCompile Include="ybf\ybf\unicode.cpp" />
+    <ClCompile Include="ybf\ybf.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

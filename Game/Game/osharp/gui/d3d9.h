@@ -252,10 +252,17 @@ namespace osharp { namespace gui {
 			create( renderer, *this, cvt::codec_cvt<formats::utf_8>::cvt( name ), params );
 		}
 
-	public:
-		Vector2i get_size( const std::string &str ) const;
+		enum CalcFlags
+		{
+			WithoutTrailingSpaces = 1 << 1,
+			WithTrailingSpaces = 1 << 2,
+			OnlyTrailingSpaces = 1 << 3,
+		};
 
-		Vector2i get_size( const std::wstring &str ) const;
+	public:
+		Vector2i get_size( const std::string &str, const CalcFlags &flags = WithoutTrailingSpaces ) const;
+
+		Vector2i get_size( const std::wstring &str, const CalcFlags &flags = WithoutTrailingSpaces ) const;
 
 		template<typename T>
 		Vector2i get_size( const std::basic_string<T> &str ) const
@@ -453,28 +460,10 @@ namespace osharp { namespace gui {
 	private:
 		void initial_calculations( )
 		{
-			constexpr auto A = constexprs::to_str<codec_cvt>( "A" );
-			constexpr auto space = constexprs::to_str<codec_cvt>( "A A" );
-			if ( font_.valid( ) ) // get the width and optionally the height of the ' ' character.
+			if ( font_.valid( ) )
 			{
-				auto dot_size = font_.get_size( A.c_str( ) );
-				auto manip_size = font_.get_size( space.c_str( ) );
-				cached_size_ = font_.get_size( str_.c_str( ) );
-				space_.y = manip_size.y;
-				space_.x = manip_size.x - ( dot_size.x * 2 );
-				if ( !str_.empty( ) && str_.back( ) == codec_cvt::cvt( ' ' ) )
-				{
-					auto count = std::count_if( std::rbegin( str_ ), std::rend( str_ ), [non_sp = true]( const auto &elem )mutable
-					{
-						if ( !non_sp )
-							return false;
-						else if ( elem != codec_cvt::cvt( ' ' ) )
-							non_sp = false;
-						return non_sp;
-					} );
-					cached_advanced_size_.x = count * space_.x;
-					cached_advanced_size_.y = space_.y;
-				}
+				cached_size_ = font_.get_size( str_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
+				cached_advanced_size_ = font_.get_size( str_, d3d9_font::CalcFlags::OnlyTrailingSpaces );
 			}
 		}
 
@@ -482,7 +471,7 @@ namespace osharp { namespace gui {
 		string_type str_;
 		d3d9_font font_;
 		std::uint32_t color_;
-		Vector2i pos_, space_, cached_size_, cached_advanced_size_;
+		Vector2i pos_, cached_size_, cached_advanced_size_;
 	};
 
 	struct d3d9_line

@@ -132,6 +132,30 @@ namespace osharp { namespace gui {
 			return !( *this == other );
 		}
 
+		template<typename Ty>
+		auto operator>( const Vector2<Ty> &other ) const
+		{
+			return x > other.x && y > other.y;
+		}
+
+		template<typename Ty>
+		auto operator>=( const Vector2<Ty> &other ) const
+		{
+			return x >= other.x && y >= other.y;
+		}
+
+		template<typename Ty>
+		auto operator<( const Vector2<Ty> &other ) const
+		{
+			return x < other.x && y < other.y;
+		}
+
+		template<typename Ty>
+		auto operator<=( const Vector2<Ty> &other ) const
+		{
+			return x <= other.x && y <= other.y;
+		}
+
 		T x, y;
 	};
 

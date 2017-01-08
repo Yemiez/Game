@@ -16,7 +16,7 @@ Game::Game( osharp::gui::window<codec>& window, const osharp::gui::d3d9 & gfx )
 	monw_( gui::MonitorWidth( ) ),
 	monh_( gui::MonitorHeight( ) ),
 	rng_( std::random_device( )( ) ),
-	image_( gfx, "../../resources/loading/", 0.03f, 1.f, 1.f )
+	image_( gfx, "../../resources/loading/", 0.03f, 0.136974603f, 0.136974603f )
 {
 	setup( window_, gfx );
 

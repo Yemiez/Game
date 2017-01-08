@@ -3,6 +3,7 @@
 #include "../dimensions.h"
 #include "../d3d9.h"
 #include "../../concurrency/functional.h"
+#include "pallete.h"
 
 namespace osharp
 {
@@ -52,7 +53,6 @@ namespace osharp { namespace gui { namespace components {
 
 	template<typename _Codec = cvt::codec_cvt<>>
 	class component
-		: public d3d9_renderable
 	{
 	public:
 		using codec_cvt = _Codec;
@@ -67,19 +67,9 @@ namespace osharp { namespace gui { namespace components {
 				   component<codec_cvt> &parent,
 				   std::uint32_t state,
 				   d3d9_font caption_font,
-				   d3d9_font text_font )
-			: caption_( std::move( caption ) ),
-			short_caption_( ),
-			text_( std::move( text ) ),
-			short_text_( ),
-			identifier_( std::move( identifier ) ),
-			identifier_id_( std::hash<string_type>{}( identifier_ ) ),
-			position_( position ),
-			size_( size ),
-			parent_( &parent ),
-			state_( state ),
-			caption_font_( caption_font ),
-			text_font_( text_font )
+				   d3d9_font text_font,
+				   std::shared_ptr<color_palette<codec_cvt>> palette )
+			: component( identifier, caption, text, position, size, &parent, state, caption_font, text_font, palette )
 		{ }
 		component( string_type identifier,
 				   string_type caption,
@@ -89,7 +79,8 @@ namespace osharp { namespace gui { namespace components {
 				   component<codec_cvt> *parent,
 				   std::uint32_t state,
 				   d3d9_font caption_font,
-				   d3d9_font text_font )
+				   d3d9_font text_font,
+				   std::shared_ptr<color_palette<codec_cvt>> palette )
 			: caption_( std::move( caption ) ),
 			short_caption_( ),
 			text_( std::move( text ) ),
@@ -101,9 +92,11 @@ namespace osharp { namespace gui { namespace components {
 			parent_( parent ),
 			state_( state ),
 			caption_font_( caption_font ),
-			text_font_( text_font )
+			text_font_( text_font ),
+			palette_( std::move( palette ) )
 		{ 
-			parent_->add_child( this );
+			if ( parent_ )
+				parent_->add_child( this );
 		}
 		component( )
 			: caption_( ),
@@ -121,7 +114,7 @@ namespace osharp { namespace gui { namespace components {
 
 		// virtuals
 	public:
-		virtual void draw( const d3d9 &renderer, const window &target ) const
+		virtual void draw( const d3d9 &renderer, const window<codec_cvt> &target )
 		{ }
 
 		virtual void update( ) const
@@ -297,6 +290,63 @@ namespace osharp { namespace gui { namespace components {
 		}
 
 	public:
+		// trim any type of space character from right to left (end to begin)
+		void trimr( string_type &target )
+		{
+			target.erase( std::find_if( target.rbegin( ),
+										target.rend( ), 
+										[]( const auto &fmt )
+			{
+				return !codec_cvt::is_space( fmt );
+			} ).base( ),
+						  target.end( ) );
+		}
+
+		virtual void cut_caption( const Vector2i &clip )
+		{
+			if ( caption_font_.valid( ) )
+			{
+				auto size = caption_font_.get_size( caption_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
+				auto spaces = caption_font_.get_size( caption_, d3d9_font::CalcFlags::OnlyTrailingSpaces );
+
+				short_caption_ = caption_;
+
+				if ( spaces != Vector2i{ 0, 0 } )
+					trimr( short_caption_ );
+				
+				auto last = short_caption_.end( );
+				while ( size.x > clip.x )
+				{
+					short_caption_.replace( last - 1, short_caption_.end( ), "..." );
+					last = short_caption_.end( ) - 3;
+					size = caption_font_.get_size( short_caption_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
+				}
+			}
+		}
+
+		virtual void cut_text( const Vector2i &clip )
+		{
+			if ( text_font_.valid( ) )
+			{
+				auto size = text_font_.get_size( text_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
+				auto spaces = text_font_.get_size( text_, d3d9_font::CalcFlags::OnlyTrailingSpaces );
+
+				short_text_ = text_;
+
+				if ( spaces != Vector2i{ 0, 0 } )
+					trimr( short_text_ );
+
+				auto last = short_text_.end( );
+				while ( size.x > clip.x )
+				{
+					short_text_.replace( last - 1, short_text_.end( ), "..." );
+					last = short_text_.end( ) - 3;
+					size = caption_font_.get_size( short_text_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
+				}
+			}
+		}
+
+	public:
 		void set_parent( component<codec_cvt> *parent )
 		{
 			if ( parent_ )
@@ -310,7 +360,7 @@ namespace osharp { namespace gui { namespace components {
 			if ( child_exists( child ) )
 				return;
 			children_.emplace_back( child );
-			on_child_added_.( component_event{ *this, nullptr } );
+			on_child_added_( component_event{ *this, nullptr } );
 		}
 
 		bool child_exists( component<codec_cvt> *child ) const
@@ -326,7 +376,7 @@ namespace osharp { namespace gui { namespace components {
 		bool child_exists( const std::uint32_t &child_id ) const
 		{
 			for ( auto &x : children_ )
-				if ( x.get_identifier_id( ) == child_id )
+				if ( x->get_identifier_id( ) == child_id )
 					return true;
 			return false;
 		}
@@ -367,7 +417,8 @@ namespace osharp { namespace gui { namespace components {
 		std::uint32_t state_;
 		d3d9_font caption_font_,
 			text_font_;
-		std::vector<component<codec_cvt>> children_;
+		std::vector<component<codec_cvt>*> children_;
+		std::shared_ptr<color_palette<codec_cvt>> palette_;
 
 	private:
 		concurrency::event<void( component_event& ), _Codec> on_child_added_,

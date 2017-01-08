@@ -5,6 +5,8 @@
 #include <queue>
 #include "game/Game.h"
 
+// good scaling for loading:
+// 0.136974603
 
 
 void main( )
@@ -23,9 +25,7 @@ void main( )
 		{ 1280, 720 },
 		(gui::abstractions::WS_STYLES::ws_overlappedwindow & ~gui::abstractions::ws_sizebox) };
 	window.show_window( );
-
 	gui::d3d9 renderer{ window.get_handle( ), false  /* vsync */ };
-
 	Game game{ window, renderer };
 
 	while ( window.poll_next( ) )

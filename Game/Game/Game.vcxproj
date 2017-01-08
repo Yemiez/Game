@@ -136,6 +136,7 @@
     <ClInclude Include="osharp\constexpr\string.h" />
     <ClInclude Include="osharp\formatting\utf.h" />
     <ClInclude Include="osharp\gui\components\component.h" />
+    <ClInclude Include="osharp\gui\components\label.h" />
     <ClInclude Include="osharp\gui\components\pallete.h" />
     <ClInclude Include="osharp\gui\d3d9.h" />
     <ClInclude Include="osharp\gui\dimensions.h" />

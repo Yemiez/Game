@@ -135,6 +135,9 @@
     <ClInclude Include="game\image_animator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="osharp\gui\components\label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="osharp\gui\handle.cpp">

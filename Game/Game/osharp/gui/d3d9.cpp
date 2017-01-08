@@ -192,26 +192,84 @@ void osharp::gui::d3d9::create( handle wnd, bool vsync )
 		throw d3d9_error( code, constexprs::str_obf( "D3D9 Error occurred when creating sprite" ).str( ) );
 }
 
-osharp::gui::Vector2i osharp::gui::d3d9_font::get_size( const std::string & str ) const
+osharp::gui::Vector2i osharp::gui::d3d9_font::get_size( const std::string & str, const CalcFlags &flags ) const
 {
-	auto font = reinterpret_cast< ID3DXFont* >( this->font_ );
-	if ( !font )
-		return{ };
-	RECT result;
-	font->DrawTextA( nullptr, str.c_str( ), -1, &result, DT_CALCRECT, 0 );
-	return{ result.right - result.left,
-			result.bottom - result.top };
+	if ( flags == CalcFlags::WithoutTrailingSpaces )
+	{
+		auto font = reinterpret_cast< ID3DXFont* >( this->font_ );
+		if ( !font )
+			return{ };
+		RECT result;
+		font->DrawTextA( nullptr, str.c_str( ), -1, &result, DT_CALCRECT, 0 );
+		return{ result.right - result.left,
+				result.bottom - result.top };
+	}
+	else if ( flags == CalcFlags::OnlyTrailingSpaces )
+	{
+		static constexpr auto A = constexprs::to_str( "W" );
+		static constexpr auto space = constexprs::to_str( "W W" );
+		
+		auto dot_size = get_size( A.c_str( ) );
+		auto manip_size = get_size( space.c_str( ) );
+		Vector2i vspace{ manip_size.x - ( dot_size.x * 2 ), manip_size.y };
+		if ( str.back( ) == ' ' )
+		{
+			auto count = std::count_if( std::rbegin( str ), std::rend( str ), [non_sp = true]( const auto &elem )mutable
+			{
+				if ( !non_sp )
+					return false;
+				else if ( elem == ' ' )
+					non_sp = false;
+				return non_sp;
+			} );
+			return { count * vspace.x, vspace.y };
+		}
+		return { 0, 0 };
+	}
+	else
+	{
+		return get_size( str, CalcFlags::WithoutTrailingSpaces ) + get_size( str, CalcFlags::OnlyTrailingSpaces );
+	}
 }
 
-osharp::gui::Vector2i osharp::gui::d3d9_font::get_size( const std::wstring & str ) const
+osharp::gui::Vector2i osharp::gui::d3d9_font::get_size( const std::wstring & str, const CalcFlags &flags ) const
 {
-	auto font = reinterpret_cast< ID3DXFont* >( this->font_ );
-	if ( !font )
-		return{ };
-	RECT result;
-	font->DrawTextW( nullptr, str.c_str( ), -1, &result, DT_CALCRECT, 0 );
-	return{ result.right - result.left,
-		result.bottom - result.top };
+	if ( flags == CalcFlags::WithoutTrailingSpaces )
+	{
+		auto font = reinterpret_cast< ID3DXFont* >( this->font_ );
+		if ( !font )
+			return{};
+		RECT result;
+		font->DrawTextW( nullptr, str.c_str( ), -1, &result, DT_CALCRECT, 0 );
+		return{ result.right - result.left,
+			result.bottom - result.top };
+	}
+	else if ( flags == CalcFlags::OnlyTrailingSpaces )
+	{
+		static constexpr auto A = constexprs::to_str( "W" );
+		static constexpr auto space = constexprs::to_str( "W W" );
+
+		auto dot_size = get_size( A.c_str( ) );
+		auto manip_size = get_size( space.c_str( ) );
+		Vector2i vspace{ manip_size.x - ( dot_size.x * 2 ), manip_size.y };
+		if ( str.back( ) == ' ' )
+		{
+			auto count = std::count_if( std::rbegin( str ), std::rend( str ), [non_sp = true]( const auto &elem )mutable
+			{
+				if ( !non_sp )
+					return false;
+				else if ( elem == ' ' )
+					non_sp = false;
+				return non_sp;
+			} );
+			return { count * vspace.x, vspace.y };
+		}
+		return { 0, 0 };
+	}
+	else
+	{
+		return get_size( str, CalcFlags::WithoutTrailingSpaces ) + get_size( str, CalcFlags::OnlyTrailingSpaces );
+	}
 }
 
 void * osharp::gui::d3d9_font::get_native( ) const

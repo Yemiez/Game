@@ -39,13 +39,13 @@ namespace osharp { namespace gui { namespace components {
 	}
 
 	template<typename _Codec>
-	struct component_event
+	struct component_event_data
 	{
 		component<_Codec> &sender;
 		gui::window<_Codec> *window;
 		bool handled;
 
-		component_event( component<_Codec> &sender, gui::window<_Codec> *window )
+		component_event_data( component<_Codec> &sender, gui::window<_Codec> *window )
 			: sender( sender ), window( window ), handled( false )
 		{ }
 	};
@@ -57,7 +57,7 @@ namespace osharp { namespace gui { namespace components {
 	public:
 		using codec_cvt = _Codec;
 		using string_type = typename _Codec::string_type;
-		using component_event = component_event<codec_cvt>;
+		using component_event = component_event_data<codec_cvt>;
 	public:
 		component( string_type identifier,
 				   string_type caption,
@@ -313,14 +313,6 @@ namespace osharp { namespace gui { namespace components {
 			on_child_added_.( component_event{ *this, nullptr } );
 		}
 
-		void add_brother( component<codec_cvt> *brother )
-		{
-			if ( brother_exists( brother ) )
-				return;
-			brethren_.emplace_back( brother );
-			on_brother_added_( component_event{ *this nullptr } );
-		}
-
 		bool child_exists( component<codec_cvt> *child ) const
 		{
 			return child_exists( child->get_identifier_id( ) );
@@ -334,24 +326,6 @@ namespace osharp { namespace gui { namespace components {
 		bool child_exists( const std::uint32_t &child_id ) const
 		{
 			for ( auto &x : children_ )
-				if ( x.get_identifier_id( ) == child_id )
-					return true;
-			return false;
-		}
-
-		bool brother_exists( component<codec_cvt> *child ) const
-		{
-			return brother_exists( child->get_identifier_id( ) );
-		}
-
-		bool brother_exists( const string_type &child_name ) const
-		{
-			return brother_exists( std::hash<string_type>( )( child_name ) );
-		}
-
-		bool brother_exists( const std::uint32_t &child_id ) const
-		{
-			for ( auto &x : brethren_ )
 				if ( x.get_identifier_id( ) == child_id )
 					return true;
 			return false;
@@ -379,27 +353,6 @@ namespace osharp { namespace gui { namespace components {
 			return remove_child( std::hash<string_type>( )( id ) );
 		}
 
-		void remove_brother( const std::uint32_t &id )
-		{
-			for ( auto it = brethren_.begin( ), end = brethren_.end( );
-				  it < end;
-				  ++it )
-				if ( it->get_identifier_id( ) == id )
-				{
-					brethren_.erase( it );
-					break;
-				}
-		}
-
-		void remove_brother( const component<codec_cvt> *brother )
-		{
-			return remove_brother( brother->get_identifier_id( ) );
-		}
-
-		void remove_brother( const string_type &id )
-		{
-			return remove_brother( std::hash<string_type>( )( id ) );
-		}
 
 	private:
 		string_type caption_,
@@ -414,8 +367,7 @@ namespace osharp { namespace gui { namespace components {
 		std::uint32_t state_;
 		d3d9_font caption_font_,
 			text_font_;
-		std::vector<component<codec_cvt>> children_,
-			brethren_;
+		std::vector<component<codec_cvt>> children_;
 
 	private:
 		concurrency::event<void( component_event& ), _Codec> on_child_added_,

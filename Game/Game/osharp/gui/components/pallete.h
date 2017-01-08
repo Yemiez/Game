@@ -5,10 +5,30 @@
 
 namespace osharp { namespace gui { namespace components {
 
-	union Color
+	struct ColorRGBA
 	{
-		std::uint32_t color;
-		std::uint8_t R, G, B, A;
+		union
+		{
+			std::uint32_t color, 
+				raw;
+			struct
+			{
+				std::uint8_t B, G, R, A;
+			};
+		};
+
+		ColorRGBA( std::uint32_t color )
+			: color( color )
+		{}
+		ColorRGBA( std::uint8_t R, std::uint8_t G, std::uint8_t B )
+			: R( R ), G( G ), B( B ), A( 255u )
+		{}
+		ColorRGBA( std::uint8_t R, std::uint8_t G, std::uint8_t B, std::uint8_t A )
+			: R( R ), G( G ), B( B ), A( A )
+		{}
+		ColorRGBA( )
+			: R( 0u ), G( 0u ), B( 0u ), A( 255u )
+		{}
 	};
 
 	template<typename _Codec = cvt::codec_cvt<>>
@@ -17,36 +37,31 @@ namespace osharp { namespace gui { namespace components {
 	public:
 		using codec = _Codec;
 		using string_type = typename codec::string_type;
-		using color_type = std::uint32_t;
+		using color_type = ColorRGBA;
 
 	public:
-		color_palette( string_type name, color_type color )
-			: colors_( { { std::move( name ), { color } } } )
+		color_palette( string_type elem, color_type color )
+			: colors_( { std::move( elem ), std::move( color ) } )
 		{}
-		color_palette( string_type name, std::vector<color_type> colors )
-			: colors_( { { std::move( name ), std::move( colors ) } } )
-		{ }
-		color_palette( std::map<string_type, std::vector<color_type>> colors )
+		color_palette( std::initializer_list<std::pair<string_type, color_type>> colors )
 			: colors_( std::move( colors ) )
-		{ }
+		{}
+		color_palette( )
+			: colors_( )
+		{}
 
-		color_type get_single( const string_type &elem ) const
+		void set_color( const string_type &elem, color_type color )
 		{
-			return colors_.at( elem )[0];
+			colors_[elem] = color;
 		}
 
-		const std::vector<color_type> &get( const string_type &elem ) const
+		const color_type &get_color( const string_type &elem ) const
 		{
-			return colors_.at( elem );
-		}
-
-		color_type get_single( const string_type &elem, const std::size_t &index ) const
-		{
-			return colors_.at( elem )[index];
+			return colors_[elem];
 		}
 
 	private:
-		std::unordered_map<string_type, std::vector<color_type>> colors_;
+		std::unordered_map<string_type, color_type> colors_;
 	};
 
 } } }

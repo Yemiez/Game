@@ -192,7 +192,7 @@ namespace osharp { namespace gui {
 		template<typename R, typename G, typename B>
 		static type from( R r, G g, B b )
 		{
-			return static_cast<type>((static_cast<unsigned char>(r) | static_cast<unsigned char>(g) << 8) | (static_cast<unsigned char>(b) << 16));
+			return from( r, g, b, 255u );
 		}
 
 		template<typename R, typename G, typename B, typename A>
@@ -213,9 +213,7 @@ namespace osharp { namespace gui {
 	public:
 		virtual void draw( const d3d9 &d3d ) const = 0;
 		virtual void release( )
-		{
-
-		}
+		{}
 	};
 
 	struct d3d9_font_struct

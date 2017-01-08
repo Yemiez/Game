@@ -17,9 +17,6 @@ void main( )
 	namespace tok = osharp::tokenizing;
 	using codec = cvt::codec_cvt<fmt::utf_8>;
 
-	gui::components::Color color;
-	color.color = gui::d3d9_color::from( 0, 0, 0, 0xFF );
-
 	gui::window<codec> window{
 		"Test game",
 		{ gui::MonitorWidth( ) / 2 - 1280 / 2, gui::MonitorHeight( ) / 2 - 720 / 2 },
@@ -33,6 +30,5 @@ void main( )
 
 	while ( window.poll_next( ) )
 		game.update( renderer );
-
 }
 

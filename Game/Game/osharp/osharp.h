@@ -2,6 +2,7 @@
 #include "formatting/utf.h"
 #include "constexpr/string.h"
 #include "concurrency/async_io.h"
+#include "concurrency/frame.h"
 #include "spelling/spell_check.h"
 #include "tokenizing/token.h"
 #include "tokenizing/alphabet.h"

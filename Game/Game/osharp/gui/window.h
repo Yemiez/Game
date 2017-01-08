@@ -208,6 +208,8 @@ namespace osharp { namespace gui {
 		key_rightControl = 0xA3,
 		key_comma = 0xBC,
 		key_minus = 0xBD,
+		key_add = 0x6b,
+		key_sub = 0x6d,
 		key_dot = 0xBE
 	};
 
@@ -448,6 +450,21 @@ namespace osharp { namespace gui {
 				false;
 		}
 
+		const Vector2i &get_size( ) const
+		{
+			return size_;
+		}
+
+		const Vector2i &get_mouse( ) const
+		{
+			return mouse_;
+		}
+
+		const auto is_key_down( const std::uint32_t &i ) const
+		{
+			return keys_[i];
+		}
+
 		DialogResult MessageBox( const string_type &message,
 								 const string_type &caption,
 								 long type = YesNo )
@@ -514,18 +531,21 @@ namespace osharp { namespace gui {
 					return 0;
 					break;
 				case osharp::gui::abstractions::wm_keydown:
+					keys_[static_cast<int>(wParam)] = true;
 					key_ev_( window_key_data{ *this, msg, wParam,
 							 lParam, false, true,
 							 static_cast< int >( wParam ), keys_[key_shift], keys_[key_control] } );
 					return 0;
 					break;
 				case osharp::gui::abstractions::wm_keyup:
+					keys_[static_cast<int>(wParam)] = false;
 					key_ev_( window_key_data{ *this, msg, wParam,
 							 lParam, true, false,
 							 static_cast< int >( wParam ), keys_[key_shift], keys_[key_control] } );
 					return 0;
 					break;
 				case osharp::gui::abstractions::wm_mousemove:
+					mouse_ = points;
 					mouse_ev_( window_mouse_data{ *this, msg, wParam,
 							   lParam, false, false,
                                false, static_cast< int >( wParam ), 0, 
@@ -632,6 +652,7 @@ namespace osharp { namespace gui {
 		std::unordered_map<string_type, concurrency::event<void( event_data& ), codec_cvt>*> events_;
 		bool pev_ = true;
 		std::array<bool, 255> keys_;
+		Vector2i mouse_{ 0, 0 };
 
 		// events
 	private:

@@ -5,6 +5,12 @@
 
 namespace osharp { namespace gui { namespace components {
 
+	union Color
+	{
+		std::uint32_t color;
+		std::uint8_t R, G, B, A;
+	};
+
 	template<typename _Codec = cvt::codec_cvt<>>
 	class color_palette
 	{

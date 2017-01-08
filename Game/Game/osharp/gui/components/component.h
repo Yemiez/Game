@@ -33,7 +33,7 @@ namespace osharp { namespace gui { namespace components {
 		DISABLED = 128,
 	};
 
-	ComponentState operator|( ComponentState lhs, ComponentState rhs )
+	static ComponentState operator|( ComponentState lhs, ComponentState rhs )
 	{
 		return static_cast< ComponentState >( static_cast< std::uint32_t >( lhs ) | static_cast< std::uint32_t >( rhs ) );
 	}

@@ -2,19 +2,19 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
-void osharp::gui::d3d9::begin_draw( const std::function<void( const d3d9& )>& lambda, const std::uint32_t &colors ) const
+void osharp::gui::d3d9::draw_frame( const std::function<void( const d3d9& )>& lambda, const std::uint32_t &colors ) const
 { 
 	auto device = reinterpret_cast< IDirect3DDevice9* >( device_ );
-	device->Clear( 0, nullptr, D3DCLEAR_TARGET, colors, 1.f, 0 );
+	device->Clear( 0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, colors, 1.f, 0 );
 	device->BeginScene( );
 	lambda( *this );
 	device->EndScene( );
 	device->Present( nullptr, nullptr, 0, nullptr );
 }
 
-void osharp::gui::d3d9::begin_draw( const d3d9_renderable & renderable, const std::uint32_t &colors ) const
+void osharp::gui::d3d9::draw_frame( const d3d9_renderable & renderable, const std::uint32_t &colors ) const
 { 
-	return begin_draw( [&renderable]( const d3d9 &obj )
+	return draw_frame( [&renderable]( const d3d9 &obj )
 	{
 		obj.draw( renderable );
 	},
@@ -44,7 +44,7 @@ void osharp::gui::d3d9::release( )
 	}
 }
 
-void osharp::gui::d3d9::reset( handle & wnd )
+void osharp::gui::d3d9::reset( handle & wnd, bool vsync ) const
 { 
 	RECT rect;
 	GetWindowRect( *reinterpret_cast< HWND* >( wnd.native_ptr( ) ), &rect );
@@ -53,16 +53,20 @@ void osharp::gui::d3d9::reset( handle & wnd )
 		0u,
 		0u,
 		D3DFMT_A8R8G8B8,
-		0,
+		0u,
 		D3DMULTISAMPLE_NONE,
-		0,
+		0u,
 		D3DSWAPEFFECT_DISCARD,
-		*reinterpret_cast<HWND*>( wnd.native_ptr( ) ),
+		*reinterpret_cast<HWND*>(wnd.native_ptr( )),
 		true,
 		true,
 		D3DFMT_D16,
-		0,
-		0,
+		0u,
+		vsync ?
+		D3DPRESENT_RATE_DEFAULT :
+		0u,
+		vsync ?
+		D3DPRESENT_INTERVAL_ONE :
 		D3DPRESENT_INTERVAL_IMMEDIATE
 	};
 	auto res = reinterpret_cast< IDirect3DDevice9* >( device_ )->Reset( &params );
@@ -136,7 +140,12 @@ void * osharp::gui::d3d9::get_line_buffer( ) const
 	return line_;
 }
 
-void osharp::gui::d3d9::create( handle wnd )
+void * osharp::gui::d3d9::get_sprite( ) const
+{
+	return sprite_;
+}
+
+void osharp::gui::d3d9::create( handle wnd, bool vsync )
 { 
 	if ( !wnd )
 		throw d3d9_error( constexprs::str_obf( "Failed to create DirectX9 object (HWND passed was null)" ).str( ) );
@@ -150,16 +159,20 @@ void osharp::gui::d3d9::create( handle wnd )
 		0u,
         0u,
 		D3DFMT_A8R8G8B8,
-		0,
+		0u,
 		D3DMULTISAMPLE_NONE,
-		0,
+		0u,
 		D3DSWAPEFFECT_DISCARD,
 		*reinterpret_cast<HWND*>( wnd.native_ptr( ) ),
 		true,
 		true,
 		D3DFMT_D16,
-		0,
-		0,
+		0u,
+	    vsync ? 
+		D3DPRESENT_RATE_DEFAULT :
+		0u,
+		vsync ? 
+		D3DPRESENT_INTERVAL_ONE :
 		D3DPRESENT_INTERVAL_IMMEDIATE
 	};
 	if ( FAILED( code = reinterpret_cast< IDirect3D9Ex* >( interface_ )->CreateDevice( D3DADAPTER_DEFAULT,
@@ -170,7 +183,13 @@ void osharp::gui::d3d9::create( handle wnd )
 																					   reinterpret_cast< IDirect3DDevice9** >( &device_ ) ) ) )
 		throw d3d9_error( code, constexprs::str_obf( "Failed to create DirectX9 Device" ).str( ) );
 	default_ = d3d9_font( *this, constexprs::str_obf( "Verdana" ).str( ) );
-	D3DXCreateLine( reinterpret_cast< IDirect3DDevice9* >( device_ ), reinterpret_cast< ID3DXLine** >( &line_ ) );
+	code = D3DXCreateLine( reinterpret_cast< IDirect3DDevice9* >( device_ ), reinterpret_cast< ID3DXLine** >( &line_ ) );
+	if ( FAILED( code ) )
+		throw d3d9_error( code, constexprs::str_obf( "D3D9 Error occurred when creating line buffer" ).str( ) );
+
+	code = D3DXCreateSprite( reinterpret_cast< IDirect3DDevice9* >( device_ ), reinterpret_cast<ID3DXSprite**>( &sprite_ ) );
+	if ( FAILED( code ) )
+		throw d3d9_error( code, constexprs::str_obf( "D3D9 Error occurred when creating sprite" ).str( ) );
 }
 
 osharp::gui::Vector2i osharp::gui::d3d9_font::get_size( const std::string & str ) const
@@ -214,7 +233,7 @@ void osharp::gui::d3d9_font::release( )
 	}
 }
 
-void osharp::gui::d3d9_font::create( d3d9 & renderer, d3d9_font & font, std::string name, const d3d9_font_struct &params )
+void osharp::gui::d3d9_font::create( const d3d9 & renderer, d3d9_font & font, std::string name, const d3d9_font_struct &params )
 {
 	auto device = reinterpret_cast< IDirect3DDevice9* >( renderer.get_device( ) );
 	auto res = D3DXCreateFontA( device, params.Height, params.Width, params.Weight, params.MipLevels, params.Italic,
@@ -260,4 +279,71 @@ void osharp::gui::d3d9_line::draw( const d3d9 & renderer ) const
 		{ static_cast<float>( end.x ), static_cast<float>( end.y ) }
 	};
 	line->Draw( vertices, 2, color );
+}
+
+osharp::gui::d3d9_image_view::d3d9_image_view( const d3d9 & gfx, std::istream & stream, Vector2i pos )
+	: texture_( nullptr ), pos_( pos )
+{
+	load( gfx, stream );
+}
+
+osharp::gui::d3d9_image_view::d3d9_image_view( )
+	: texture_( nullptr ), pos_( 0, 0 )
+{}
+
+void osharp::gui::d3d9_image_view::load( const d3d9 & gfx, std::istream & stream )
+{
+	auto device = reinterpret_cast<IDirect3DDevice9*>( gfx.get_device( ) );
+	std::string data{ std::istreambuf_iterator<char>( stream ),
+					  std::istreambuf_iterator<char>( ) };
+	auto hr = D3DXCreateTextureFromFileInMemory( device, data.c_str( ), data.size( ), reinterpret_cast<IDirect3DTexture9**>( &texture_ ) );
+
+	if ( FAILED( hr ) )
+		throw d3d9_error( hr, constexprs::str_obf( "D3D9 Error occurred when creating texture from std::istream" ).str( ) );
+	
+
+	// Surface desc
+	D3DSURFACE_DESC s;
+	reinterpret_cast<IDirect3DTexture9*>( texture_ )->GetLevelDesc( 0, &s );
+	dim_.x = s.Width;
+	dim_.y = s.Height;
+}
+
+void osharp::gui::d3d9_image_view::draw( const d3d9 & gfx ) const
+{
+	if ( texture_ )
+	{
+		auto sprite = reinterpret_cast<ID3DXSprite*>( gfx.get_sprite( ) );
+		sprite->Begin( D3DXSPRITE_ALPHABLEND );
+
+		if ( x_ != 0.f || y_ != 0.f )
+		{
+			D3DXMATRIX old;
+			
+			// Save current
+			sprite->GetTransform( &old );
+
+			D3DXMATRIX scaled;
+			D3DXVECTOR2 scaling{ x_, y_ };
+
+			D3DXMatrixTransformation2D( &scaled, nullptr, 0.f, &scaling, nullptr, 0.f, nullptr );
+
+			// Scale
+			sprite->SetTransform( &scaled );
+
+			// Calculate new position based on the scaling applied
+			D3DXVECTOR3 pos{ pos_.x * ( 1.f / x_ ), pos_.y * ( 1.f / y_ ), 0.f };
+			sprite->Draw( reinterpret_cast<IDirect3DTexture9*>( texture_ ), nullptr, nullptr, &pos, 0xFFFFFFFF );
+
+			// Reset back
+			sprite->SetTransform( &old );
+		}
+		else
+		{
+			D3DXVECTOR3 pos{ static_cast<float>( pos_.x ), static_cast<float>( pos_.y ), 0.f };
+			sprite->Draw( reinterpret_cast<IDirect3DTexture9*>( texture_ ), nullptr, nullptr, &pos, 0xFFFFFFFF );
+		}
+
+		sprite->End( );
+	}
 }

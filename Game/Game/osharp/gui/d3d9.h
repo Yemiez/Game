@@ -43,7 +43,7 @@ namespace osharp { namespace gui {
 		long res_;
 	};
 
-	class d3d9_colors
+	class d3d9_color
 	{
 	public:
 		typedef const std::uint32_t type;
@@ -200,6 +200,7 @@ namespace osharp { namespace gui {
 		{
 			return static_cast<type>(((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff));
 		}
+
 	};
 
 	class d3d9;
@@ -211,6 +212,10 @@ namespace osharp { namespace gui {
 	{
 	public:
 		virtual void draw( const d3d9 &d3d ) const = 0;
+		virtual void release( )
+		{
+
+		}
 	};
 
 	struct d3d9_font_struct
@@ -237,13 +242,13 @@ namespace osharp { namespace gui {
 		d3d9_font( )
 			: font_( nullptr )
 		{ }
-		d3d9_font( d3d9 &renderer, const std::string &name, d3d9_font_struct params = d3d9_font_struct( ) )
+		d3d9_font( const d3d9 &renderer, const std::string &name, d3d9_font_struct params = d3d9_font_struct( ) )
 			: font_( )
 		{
 			create( renderer, *this, name, params );
 		}
 		template<typename T>
-		d3d9_font( d3d9 &renderer, const std::basic_string<T> &name, d3d9_font_struct params = d3d9_font_struct() )
+		d3d9_font( const d3d9 &renderer, const std::basic_string<T> &name, d3d9_font_struct params = d3d9_font_struct() )
 			: font_( nullptr )
 		{
 			create( renderer, *this, cvt::codec_cvt<formats::utf_8>::cvt( name ), params );
@@ -273,7 +278,7 @@ namespace osharp { namespace gui {
 		void release( );
 
 	private:
-		static void create( d3d9 &renderer, d3d9_font &font, std::string name, const d3d9_font_struct &params );
+		static void create( const d3d9 &renderer, d3d9_font &font, std::string name, const d3d9_font_struct &params );
 
 	private:
 		void *font_;
@@ -284,18 +289,31 @@ namespace osharp { namespace gui {
 	{
 	public:
 		d3d9( ) = delete;
-		d3d9( handle wnd )
+		d3d9( handle wnd, bool vsync = false )
 			: interface_( nullptr ),
 			device_( nullptr ),
 			default_( )
 		{
-			create( wnd );
+			create( wnd, vsync );
 		}
 
-	public:
-		void begin_draw( const std::function<void( const d3d9& )> &lambda, const std::uint32_t &color = d3d9_colors::Black ) const;
+		struct CustomF{};
+		static const CustomF custom;
 
-		void begin_draw( const d3d9_renderable &renderable, const std::uint32_t &color = d3d9_colors::Black ) const;
+	public:
+		void draw_frame( const std::function<void( const d3d9& )> &lambda, const std::uint32_t &color = d3d9_color::Black ) const;
+
+		void draw_frame( const d3d9_renderable &renderable, const std::uint32_t &color = d3d9_color::Black ) const;
+
+		template<typename Pred, typename...Tx>
+		void draw_frame( Pred &&lambda, const std::uint32_t &color, const CustomF&, Tx&&...tx )
+		{
+			return begin_draw( [&lambda, &tx...]( const d3d9& gfx )
+			{
+				std::forward<Pred>( lambda )( gfx, std::forward<Tx>( tx )... );
+			},
+							   color );
+		}
 
 		void draw( const d3d9_renderable & ) const;
 
@@ -303,7 +321,7 @@ namespace osharp { namespace gui {
 
 		void release( );
 
-		void reset( handle &wnd );
+		void reset( handle &wnd, bool vsync = false ) const;
 
 		void draw_string( const d3d9_font &font, 
 						  const std::string &str, 
@@ -339,13 +357,16 @@ namespace osharp { namespace gui {
 
 		void *get_line_buffer( ) const;
 
-	private:
-		void create( handle wnd );
+		void *get_sprite( ) const;
 
 	private:
-		void *interface_;
-		void *device_;
-		void *line_;
+		void create( handle wnd, bool vsync );
+
+	private:
+		void *interface_,
+			*device_,
+			*line_,
+			*sprite_;
 		d3d9_font default_;
 		bool reset_;
 	};
@@ -399,6 +420,11 @@ namespace osharp { namespace gui {
 			return pos_;
 		}
 
+		const string_type &get_text( ) const
+		{
+			return str_;
+		}
+
 		void set_color( std::uint32_t color )
 		{
 			color_ = color;
@@ -412,6 +438,12 @@ namespace osharp { namespace gui {
 		void set_font( const d3d9_font &font )
 		{
 			font_ = font;
+			initial_calculations( );
+		}
+
+		void set_text( std::string text )
+		{
+			str_ = std::move( text );
 			initial_calculations( );
 		}
 
@@ -466,6 +498,71 @@ namespace osharp { namespace gui {
 		virtual void draw( const d3d9 &renderer ) const;
 	};
 
-}
+	class d3d9_image_view
+		: public d3d9_renderable
+	{
+	public:
+		d3d9_image_view( const d3d9 &gfx, std::istream &stream, Vector2i pos = {0, 0} );
+		d3d9_image_view( );
 
-}
+		void load( const d3d9 &gfx, std::istream &stream );
+
+		virtual void draw( const d3d9 &gfx ) const;
+
+		void *get_texture( ) const
+		{
+			return texture_;
+		}
+
+		const Vector2i &get_dimensions( ) const
+		{
+			return dim_;
+		}
+
+		const Vector2i &get_position( ) const
+		{
+			return pos_;
+		}
+
+		void set_position( Vector2i pos )
+		{
+			pos_ = std::move( pos );
+		}
+
+		void scale_x( float amount )
+		{
+			x_ += amount;
+		}
+
+		void scale_y( float amount )
+		{
+			y_ += amount;
+		}
+
+		void shrink_x( float amount )
+		{
+			x_ -= amount;
+		}
+
+		void shrink_y( float amount )
+		{
+			y_ -= amount;
+		}
+
+		const float& scale_x( ) const
+		{
+			return x_;
+		}
+
+		const float& scale_y( ) const
+		{
+			return y_;
+		}
+
+	private:
+		void *texture_;
+		Vector2i dim_, pos_;
+		float x_ = 0.f, y_ = 0.f;
+	};
+
+}}

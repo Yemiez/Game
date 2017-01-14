@@ -108,14 +108,14 @@ namespace osharp { namespace concurrency {
 			{
 				std::forward<_Fun>( fun )( std::forward<_Ax>( ax )... );
 				if ( finished_ )
-					finished_( *this );
+					finished_( std::ref( *this ) );
 			} );
 			return fut_.valid( );
 		}
 
 		template<typename _Fun>
 		auto
-			on_finished( _Fun &&fun )->self_type&
+			then( _Fun &&fun )->self_type&
 		{
 			finished_ = std::forward<_Fun>( fun );
 			return *this;

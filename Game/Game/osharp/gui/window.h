@@ -522,6 +522,7 @@ namespace osharp { namespace gui {
 		long handle_message( std::uint32_t msg, std::uint32_t wParam, long lParam )
 		{
 			event_data data{ *this, msg, wParam, lParam };
+			msg_ev_( data );
 			auto points = abstractions::MakePoints( lParam );
 			switch ( msg )
 			{

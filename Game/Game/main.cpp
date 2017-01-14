@@ -3,14 +3,18 @@
 #include <thread>
 #include <array>
 #include <queue>
+#include <thread>
 #include "game/Game.h"
 
 // good scaling for loading:
 // 0.136974603
 
 
+
 void main( )
 {
+	std::vector<int> integers;
+
 	namespace cvt = osharp::cvt;
 	namespace fmt = osharp::formats;
 	namespace gui = osharp::gui;
@@ -25,10 +29,15 @@ void main( )
 		{ 1280, 720 },
 		(gui::abstractions::WS_STYLES::ws_overlappedwindow & ~gui::abstractions::ws_sizebox) };
 	window.show_window( );
-	gui::d3d9 renderer{ window.get_handle( ), false  /* vsync */ };
-	Game game{ window, renderer };
+
+	gui::d3d9 gfx{ window.get_handle( ), true  /* vsync */ };
+
+	Game game{ window, gfx };
 
 	while ( window.poll_next( ) )
-		game.update( renderer );
+	{
+		game.update( gfx );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+	}
 }
 

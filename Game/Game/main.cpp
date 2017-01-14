@@ -34,6 +34,7 @@ void main( )
 
 	Game game{ window, gfx };
 
+
 	while ( window.poll_next( ) )
 	{
 		game.update( gfx );

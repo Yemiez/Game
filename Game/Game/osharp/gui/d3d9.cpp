@@ -339,7 +339,7 @@ void osharp::gui::d3d9_line::draw( const d3d9 & renderer ) const
 	line->Draw( vertices, 2, color );
 }
 
-osharp::gui::d3d9_image_view::d3d9_image_view( const d3d9 & gfx, std::istream & stream, Vector2i pos )
+osharp::gui::d3d9_image_view::d3d9_image_view( const d3d9 & gfx, std::istream & stream, Vector2f pos )
 	: texture_( nullptr ), pos_( pos )
 {
 	load( gfx, stream );
@@ -358,9 +358,6 @@ void osharp::gui::d3d9_image_view::load( const d3d9 & gfx, std::istream & stream
 
 	if ( FAILED( hr ) )
 		throw d3d9_error( hr, constexprs::str_obf( "D3D9 Error occurred when creating texture from std::istream" ).str( ) );
-	
-
-	// Surface desc
 	D3DSURFACE_DESC s;
 	reinterpret_cast<IDirect3DTexture9*>( texture_ )->GetLevelDesc( 0, &s );
 	dim_.x = s.Width;
@@ -372,7 +369,7 @@ void osharp::gui::d3d9_image_view::draw( const d3d9 & gfx ) const
 	if ( texture_ )
 	{
 		auto sprite = reinterpret_cast<ID3DXSprite*>( gfx.get_sprite( ) );
-		sprite->Begin( D3DXSPRITE_ALPHABLEND );
+		sprite->Begin( D3DXSPRITE_ALPHABLEND | D3DXSPRITE_OBJECTSPACE );
 
 		if ( x_ != 0.f || y_ != 0.f )
 		{

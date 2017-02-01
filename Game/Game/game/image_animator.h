@@ -20,7 +20,7 @@ public:
 
 	void shrink_y( float amount );
 	
-	void set_position( osharp::gui::Vector2i pos );
+	void set_position( osharp::gui::Vector2f pos );
 
 private:
 	struct Image

@@ -79,7 +79,7 @@ void image_animator::shrink_y( float amount )
 		x.image.shrink_y( amount );
 }
 
-void image_animator::set_position( osharp::gui::Vector2i pos )
+void image_animator::set_position( osharp::gui::Vector2f pos )
 {
 	for ( auto &x : images_ )
 		x.image.set_position( pos );

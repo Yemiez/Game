@@ -106,6 +106,13 @@ osharp::gui::Vector2i osharp::gui::abstractions::MakePoints( long lParam )
 	return{ points.x, points.y };
 }
 
+osharp::gui::Vector2i osharp::gui::abstractions::ClientToScreen( const handle &handle, const Vector2i & vec )
+{
+	POINT point = { vec.x, vec.y };
+	::ClientToScreen( *reinterpret_cast< HWND* >( handle.native_ptr( ) ), &point );
+	return { point.x, point.y };
+}
+
 int osharp::gui::abstractions::GetWheelDelta( std::uint32_t wParam )
 {
 	return GET_WHEEL_DELTA_WPARAM( wParam );

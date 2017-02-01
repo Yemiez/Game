@@ -1,6 +1,5 @@
 #pragma once
 #include "../../formatting/utf.h"
-#include <vector>
 #include <unordered_map>
 
 namespace osharp { namespace gui { namespace components {
@@ -37,27 +36,70 @@ namespace osharp { namespace gui { namespace components {
 	public:
 		using codec = _Codec;
 		using string_type = typename codec::string_type;
-		using color_type = ColorRGBA;
+
+		struct color_type
+		{
+			color_type( std::initializer_list<std::pair<string_type, ColorRGBA>> colors )
+				: color_range_( std::move( colors ) )
+			{}
+			color_type( std::unordered_map<string_type, ColorRGBA> color )
+				: color_range_( std::move( color ) )
+			{}
+			color_type( )
+				: color_range_( )
+			{}
+
+			ColorRGBA &operator[]( const string_type &index )
+			{
+				return color_range_[index];
+			}
+
+			std::unordered_map<string_type, ColorRGBA> color_range_;
+		};
 
 	public:
-		color_palette( string_type elem, color_type color )
-			: colors_( { std::move( elem ), std::move( color ) } )
-		{}
-		color_palette( std::initializer_list<std::pair<string_type, color_type>> colors )
-			: colors_( std::move( colors ) )
+		color_palette( std::unordered_map<string_type, color_type> color )
+			: colors_( std::move( colors_ ) )
 		{}
 		color_palette( )
-			: colors_( )
 		{}
 
-		void set_color( const string_type &elem, color_type color )
+		void set_color( const string_type &elem, const string_type &index, ColorRGBA color )
 		{
-			colors_[elem] = color;
+			colors_[elem][index] = std::move( color );
 		}
 
-		const color_type &get_color( const string_type &elem ) const
+		void set_color( const string_type &elem, color_type range )
+		{
+			colors_[elem] = std::move( range );
+		}
+
+		const auto &get_color( const string_type &elem, const string_type &index ) const
+		{
+			return colors_[elem][index];
+		}
+
+		const auto &get_color( const string_type &elem ) const
 		{
 			return colors_[elem];
+		}
+
+		auto get_or_default( const string_type &elem, const string_type &index, ColorRGBA color ) const
+		{
+			if ( colors_.count( elem ) )
+			{
+				auto &range = colors_.at( elem );
+				if ( range.color_range_.count( index ) )
+					return range.color_range_.at( index );
+			}
+			return std::move( color );
+		}
+
+		auto get_or_default( const string_type &elem, color_type color ) const
+		{
+			if ( colors_.count( elem ) )
+				return colors_[elem];
+			return std::move( color );
 		}
 
 	private:

@@ -4,41 +4,65 @@
 #include <array>
 #include <queue>
 #include <thread>
+#include <fstream>
 #include "game/Game.h"
 
 // good scaling for loading:
 // 0.136974603
 
+struct x{};
 
+volatile static x y{};
+
+
+struct Person
+{
+    std::string Name,
+        Surname,
+        City;
+
+    Person( ) = default;
+    Person( std::string name, std::string sur, std::string city )
+        : Name( std::move( name ) ),
+        Surname( std::move( sur ) ),
+        City( std::move( city ) )
+    { }
+};
 
 void main( )
 {
-	std::vector<int> integers;
+    std::vector<int> integers;
 
-	namespace cvt = osharp::cvt;
-	namespace fmt = osharp::formats;
-	namespace gui = osharp::gui;
-	namespace cnc = osharp::concurrency;
-	namespace spg = osharp::spelling;
-	namespace tok = osharp::tokenizing;
-	using codec = cvt::codec_cvt<fmt::utf_8>;
+    namespace cvt = osharp::cvt;
+    namespace fmt = osharp::formats;
+    namespace tok = osharp::tokenizing;
+    using codec = cvt::codec_cvt<fmt::utf_8>;
 
-	gui::window<codec> window{
-		"Test game",
-		{ gui::MonitorWidth( ) / 2 - 1280 / 2, gui::MonitorHeight( ) / 2 - 720 / 2 },
-		{ 1280, 720 },
-		(gui::abstractions::WS_STYLES::ws_overlappedwindow & ~gui::abstractions::ws_sizebox) };
-	window.show_window( );
+    std::string file_contents{ "Donald Trump Washington Sand Nigger Egypt Literal Shit Toilet" };
+    tok::code_iterator<codec> code_iterator{ file_contents.begin( ), file_contents.end( ) };
 
-	gui::d3d9 gfx{ window.get_handle( ), true  /* vsync */ };
+    std::vector<Person> people;
+    while ( code_iterator )
+    {
+        auto token = tok::single_token<codec>::parse_single( code_iterator, tok::alphabet<codec>{ } );
+        if ( token.is_identifier( ) ) // name
+        {
+            auto name = token.get_block( );
+            token = tok::single_token<codec>::parse_single( code_iterator, tok::alphabet<codec>{} );
+            if ( token.is_identifier( ) ) // surname
+            {
+                auto surname = token.get_block( );
+                token = tok::single_token<codec>::parse_single( code_iterator, tok::alphabet<codec>{} );
+                if ( token.is_identifier( ) ) // city
+                {
+                    auto city = token.get_block( );
+                    people.emplace_back( std::move( name ), std::move( surname ), std::move( city ) );
+                }
+            }
+        }
+    }
 
-	Game game{ window, gfx };
-
-
-	while ( window.poll_next( ) )
-	{
-		game.update( gfx );
-		std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
-	}
+    for ( auto &person : people )
+        std::cout << "Person " << person.Name << " " << person.Surname << " is from " << person.City << '\n';
 }
 

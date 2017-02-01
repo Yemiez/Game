@@ -392,17 +392,15 @@ namespace osharp { namespace gui {
 			: str_( std::move( str ) ),
 			font_( font ),
 			pos_( std::move( pos ) ),
-			color_( color )
-		{
-			initial_calculations( );
-		}
+			color_( color ),
+			changed_( true )
+		{}
 
 		d3d9_string( d3d9_font font )
 			: str_( ),
-			font_( font )
-		{		
-			initial_calculations( );
-		}
+			font_( font ),
+			changed_( true )
+		{}
 
 	public:
 		Vector2i get_size_of_trailing_spaces( ) const
@@ -443,13 +441,13 @@ namespace osharp { namespace gui {
 		void set_font( const d3d9_font &font )
 		{
 			font_ = font;
-			initial_calculations( );
+			changed_ = true;
 		}
 
 		void set_text( std::string text )
 		{
 			str_ = std::move( text );
-			initial_calculations( );
+			changed_ = true;
 		}
 
 		virtual void draw( const d3d9 &renderer ) const
@@ -457,13 +455,14 @@ namespace osharp { namespace gui {
 			renderer.draw_string( font_, str_, color_, pos_, cached_size_ );
 		}
 
-	private:
-		void initial_calculations( )
+	public:
+		void cache_sizes( )
 		{
-			if ( font_.valid( ) )
+			if ( font_.valid( ) && changed_ )
 			{
 				cached_size_ = font_.get_size( str_, d3d9_font::CalcFlags::WithoutTrailingSpaces );
 				cached_advanced_size_ = font_.get_size( str_, d3d9_font::CalcFlags::OnlyTrailingSpaces );
+				changed_ = false; 
 			}
 		}
 
@@ -472,6 +471,7 @@ namespace osharp { namespace gui {
 		d3d9_font font_;
 		std::uint32_t color_;
 		Vector2i pos_, cached_size_, cached_advanced_size_;
+		bool changed_;
 	};
 
 	struct d3d9_line
@@ -489,7 +489,7 @@ namespace osharp { namespace gui {
 		: public d3d9_renderable
 	{
 	public:
-		d3d9_image_view( const d3d9 &gfx, std::istream &stream, Vector2i pos = {0, 0} );
+		d3d9_image_view( const d3d9 &gfx, std::istream &stream, Vector2f pos = {0.f, 0.f} );
 		d3d9_image_view( );
 
 		void load( const d3d9 &gfx, std::istream &stream );
@@ -501,17 +501,17 @@ namespace osharp { namespace gui {
 			return texture_;
 		}
 
-		const Vector2i &get_dimensions( ) const
+		const Vector2f &get_dimensions( ) const
 		{
 			return dim_;
 		}
 
-		const Vector2i &get_position( ) const
+		const Vector2f &get_position( ) const
 		{
 			return pos_;
 		}
 
-		void set_position( Vector2i pos )
+		void set_position( Vector2f pos )
 		{
 			pos_ = std::move( pos );
 		}
@@ -548,7 +548,7 @@ namespace osharp { namespace gui {
 
 	private:
 		void *texture_;
-		Vector2i dim_, pos_;
+		Vector2f dim_, pos_;
 		float x_ = 0.f, y_ = 0.f;
 	};
 

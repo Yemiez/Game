@@ -3,7 +3,7 @@
 #include <d3dx9.h>
 #include <osharp.h>
 
-#ifndef FAGGOT_WINDOWS
+#ifndef WINDOWS_NO_POLLUTION
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS
 #define NOSYSMETRICS
@@ -39,7 +39,7 @@
 #define NOIMAGE
 #define NOTAPE
 #define NOMINMAX
-#define FAGGOT_WINDOWS
+#define WINDOWS_NO_POLLUTION
 #endif
 
 namespace engine
@@ -49,16 +49,16 @@ namespace engine
 	// y = YAW
 	// x = PITCH
 
-	class Camera
+	class Camera3d
 	{
 	public:
-		Camera( D3DXVECTOR3 position,
+		Camera3d( D3DXVECTOR3 position,
 			    float fov,
 				osharp::gui::Vector2i windowSize, 
 				float nearPlane, 
 				float farPlane,
 				const osharp::gui::d3d9 &device );
-		~Camera( );
+		~Camera3d( );
 
 		void CalculateViewMatrix( const osharp::gui::d3d9 &device );
 		

@@ -11,6 +11,18 @@ namespace osharp { namespace formats {
 
 namespace osharp { namespace cvt {
 
+	namespace details
+	{
+		template<typename Fmt, typename T>
+		struct to_str
+		{
+			std::basic_string<Fmt> operator()( const T &t )
+			{
+				return (std::basic_stringstream<Fmt>{} << t).str( );
+			}
+		};
+	}
+
 	template<typename T>
 	struct is_string
 	{
@@ -180,6 +192,12 @@ namespace osharp { namespace cvt {
 				  ++i )
 				result[i] = to_lower( fmt[i] );
 			return result;
+		}
+
+		template<typename T>
+		static string_type to_string( const T &t )
+		{
+			return details::to_str<output_format, T>()( t );
 		}
 
 	private:

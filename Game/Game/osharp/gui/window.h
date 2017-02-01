@@ -93,6 +93,8 @@ namespace osharp { namespace gui {
 
 		extern Vector2i MakePoints( long lParam );
 
+		extern Vector2i ClientToScreen( const handle &handle, const Vector2i &vec );
+		
 		extern int GetWheelDelta( std::uint32_t wParam );
 
 		extern void Finalize( handle );
@@ -211,6 +213,12 @@ namespace osharp { namespace gui {
 		key_add = 0x6b,
 		key_sub = 0x6d,
 		key_dot = 0xBE
+	};
+
+	enum MouseRelative
+	{
+		Screen = 0,
+		Window = 1
 	};
 
 	extern int MonitorWidth( );
@@ -455,9 +463,18 @@ namespace osharp { namespace gui {
 			return size_;
 		}
 
-		const Vector2i &get_mouse( ) const
+		Vector2i get_mouse( const MouseRelative &relative = MouseRelative::Window ) const
 		{
-			return mouse_;
+			
+			switch ( relative )
+			{
+				case MouseRelative::Window:
+				return mouse_;
+				break;
+				default:
+				return abstractions::ClientToScreen( handle_, mouse_ );
+				break;
+			}
 		}
 
 		const auto is_key_down( const std::uint32_t &i ) const

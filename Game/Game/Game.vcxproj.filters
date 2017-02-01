@@ -126,9 +126,6 @@
     <ClInclude Include="osharp\concurrency\frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\3d\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="game\Teapot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,6 +133,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="osharp\gui\components\label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\2d\2dcamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\3d\3dcamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -197,9 +200,6 @@
     <ClCompile Include="game\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\3d\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -207,6 +207,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game\image_animator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\2d\2dcamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\3d\3dcamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

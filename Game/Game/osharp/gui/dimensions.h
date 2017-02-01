@@ -10,6 +10,10 @@ namespace osharp { namespace gui {
 		Vector2( T x, T y )
 			: x( x ), y( y )
 		{ }
+		template<typename U>
+		Vector2( const Vector2<U> &other )
+			: x( static_cast<T>( other.x ) ), y( static_cast<T>( other.y ) )
+		{}
 		Vector2( )
 			: x( static_cast<T>( 0 ) ),
 			y( static_cast<T>( 0 ) )

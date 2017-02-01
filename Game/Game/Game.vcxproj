@@ -125,7 +125,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="game\3d\Camera.h" />
+    <ClInclude Include="game\2d\2dcamera.h" />
+    <ClInclude Include="game\3d\3dcamera.h" />
     <ClInclude Include="game\Game.h" />
     <ClInclude Include="game\image_animator.h" />
     <ClInclude Include="game\Teapot.h" />
@@ -168,7 +169,8 @@
     <ClInclude Include="ybf\ybf.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="game\3d\Camera.cpp" />
+    <ClCompile Include="game\2d\2dcamera.cpp" />
+    <ClCompile Include="game\3d\3dcamera.cpp" />
     <ClCompile Include="game\Game.cpp" />
     <ClCompile Include="game\image_animator.cpp" />
     <ClCompile Include="game\Teapot.cpp" />

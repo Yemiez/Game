@@ -43,11 +43,10 @@ namespace osharp { namespace gui { namespace components {
 	struct component_event_data
 	{
 		component<_Codec> &sender;
-		gui::window<_Codec> *window;
 		bool handled;
 
-		component_event_data( component<_Codec> &sender, gui::window<_Codec> *window )
-			: sender( sender ), window( window ), handled( false )
+		component_event_data( component<_Codec> &sender )
+			: sender( sender ), handled( false )
 		{ }
 	};
 
@@ -55,20 +54,20 @@ namespace osharp { namespace gui { namespace components {
 	class component
 	{
 	public:
-		using codec_cvt = _Codec;
+		using codec = _Codec;
 		using string_type = typename _Codec::string_type;
-		using component_event = component_event_data<codec_cvt>;
+		using component_event = component_event_data<codec>;
 	public:
 		component( string_type identifier,
 				   string_type caption,
 				   string_type text,
 				   Vector2i position,
 				   Vector2i size,
-				   component<codec_cvt> &parent,
+				   component<codec> &parent,
 				   std::uint32_t state,
 				   d3d9_font caption_font,
 				   d3d9_font text_font,
-				   std::shared_ptr<color_palette<codec_cvt>> palette )
+				   std::shared_ptr<color_palette<codec>> palette )
 			: component( identifier, caption, text, position, size, &parent, state, caption_font, text_font, palette )
 		{ }
 		component( string_type identifier,
@@ -76,11 +75,11 @@ namespace osharp { namespace gui { namespace components {
 				   string_type text,
 				   Vector2i position,
 				   Vector2i size,
-				   component<codec_cvt> *parent,
+				   component<codec> *parent,
 				   std::uint32_t state,
 				   d3d9_font caption_font,
 				   d3d9_font text_font,
-				   std::shared_ptr<color_palette<codec_cvt>> palette )
+				   std::shared_ptr<color_palette<codec>> palette )
 			: caption_( std::move( caption ) ),
 			short_caption_( ),
 			text_( std::move( text ) ),
@@ -97,6 +96,7 @@ namespace osharp { namespace gui { namespace components {
 		{ 
 			if ( parent_ )
 				parent_->add_child( this );
+			++ID_COUNTER;
 		}
 		component( )
 			: caption_( ),
@@ -110,21 +110,28 @@ namespace osharp { namespace gui { namespace components {
 			state_( DISABLED ),
 			caption_font_( ),
 			text_font_( )
-		{ }
+		{ 
+			++ID_COUNTER;
+		}
 
 		// virtuals
 	public:
-		virtual void draw( const d3d9 &renderer, const window<codec_cvt> &target )
+		virtual void draw( const d3d9 &renderer )
 		{ }
 
 		virtual void update( ) const
 		{ }
 
-		virtual void set_events( const std::function<concurrency::event<void( event_data<codec_cvt> & ), codec_cvt>&( const string_type & )> &event_function ) const
-		{ }
+		virtual void set_events( const std::function<concurrency::event<void( event_data<codec> & ), codec>&( const string_type & )> &event_function )
+		{ 
+			events_.at( codec::cvt( "child_added" ) ) = &on_child_added_;
+			events_.at( codec::cvt( "child_removed" ) ) = &on_child_removed_;
+		}
 
-		virtual void erase_events( const std::function<concurrency::event<void( event_data<codec_cvt> & ), codec_cvt>&( const string_type & )> &event_function ) const
-		{ }
+		virtual void erase_events( const std::function<concurrency::event<void( event_data<codec> & ), codec>&( const string_type & )> &event_function )
+		{
+			// ... Doesn't set any events
+		}
 		
 
 	public:
@@ -173,7 +180,7 @@ namespace osharp { namespace gui { namespace components {
 			state_ &= ~mask;
 		}
 
-	private:
+	public:
 		const string_type &get_caption( ) const
 		{
 			return caption_;
@@ -249,12 +256,12 @@ namespace osharp { namespace gui { namespace components {
 			return size_;
 		}
 
-		const component<codec_cvt> *get_parent( ) const
+		const component<codec> *get_parent( ) const
 		{
 			return parent_;
 		}
 
-		component<codec_cvt> *get_parent( )
+		component<codec> *get_parent( )
 		{
 			return parent_;
 		}
@@ -279,12 +286,12 @@ namespace osharp { namespace gui { namespace components {
 			return text_font_;
 		}
 
-		const std::vector<component<codec_cvt>> &get_children( ) const
+		const std::vector<component<codec>> &get_children( ) const
 		{
 			return children_;
 		}
 
-		std::vector<component<codec_cvt>> &get_children( )
+		std::vector<component<codec>> &get_children( )
 		{
 			return children_;
 		}
@@ -297,7 +304,7 @@ namespace osharp { namespace gui { namespace components {
 										target.rend( ), 
 										[]( const auto &fmt )
 			{
-				return !codec_cvt::is_space( fmt );
+				return !codec::is_space( fmt );
 			} ).base( ),
 						  target.end( ) );
 		}
@@ -347,7 +354,7 @@ namespace osharp { namespace gui { namespace components {
 		}
 
 	public:
-		void set_parent( component<codec_cvt> *parent )
+		void set_parent( component<codec> *parent )
 		{
 			if ( parent_ )
 				parent_->remove_child( this );
@@ -355,15 +362,15 @@ namespace osharp { namespace gui { namespace components {
 			parent->add_child( this );
 		}
 
-		void add_child( component<codec_cvt> *child )
+		void add_child( component<codec> *child )
 		{
 			if ( child_exists( child ) )
 				return;
 			children_.emplace_back( child );
-			on_child_added_( component_event{ *this, nullptr } );
+			on_child_added_( component_event{ *this } );
 		}
 
-		bool child_exists( component<codec_cvt> *child ) const
+		bool child_exists( component<codec> *child ) const
 		{
 			return child_exists( child->get_identifier_id( ) );
 		}
@@ -388,12 +395,13 @@ namespace osharp { namespace gui { namespace components {
 				  ++it )
 				if ( it->get_identifier_id( ) == id )
 				{
+					on_child_removed_( component_event{ *this } );
 					children_.erase( it );
 					break;
 				}
 		}
 
-		void remove_child( const component<codec_cvt> *child )
+		void remove_child( const component<codec> *child )
 		{
 			return remove_child( child->get_identifier_id( ) );
 		}
@@ -403,8 +411,15 @@ namespace osharp { namespace gui { namespace components {
 			return remove_child( std::hash<string_type>( )( id ) );
 		}
 
+		concurrency::event<void( component_event& ), codec> &get_event( const string_type &event )
+		{
+			auto it = events_.find( event );
+			if ( it == events_.end( ) )
+				throw;
+			return *it->second;
+		}
 
-	private:
+	protected:
 		string_type caption_,
 			short_caption_,
 			text_,
@@ -413,18 +428,20 @@ namespace osharp { namespace gui { namespace components {
 		std::uint32_t identifier_id_;
 		Vector2i position_,
 			size_;
-		component<codec_cvt> *parent_;
+		component<codec> *parent_;
 		std::uint32_t state_;
 		d3d9_font caption_font_,
 			text_font_;
-		std::vector<component<codec_cvt>*> children_;
-		std::shared_ptr<color_palette<codec_cvt>> palette_;
-
+		std::vector<component<codec>*> children_;
+		std::shared_ptr<color_palette<codec>> palette_;
+		std::unordered_map<string_type, concurrency::event<void( component_event_data<codec>& ), codec>*> events_;
 	private:
 		concurrency::event<void( component_event& ), _Codec> on_child_added_,
-			on_child_removed_,
-			on_brother_added_;
+			on_child_removed_;
+		static int ID_COUNTER;
 	};
 
+	template<typename codec>
+	int component<codec>::ID_COUNTER = 1;
 
 }}}

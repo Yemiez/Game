@@ -10,3 +10,4 @@
 #include "gui/d3d9.h"
 #include "gui/components/pallete.h"
 #include "gui/components/component.h"
+#include "gui/components/label.h"

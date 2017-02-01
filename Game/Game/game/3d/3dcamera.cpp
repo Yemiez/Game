@@ -1,7 +1,7 @@
-#include "Camera.h"
+#include "3dcamera.h"
 
 
-engine::Camera::Camera( D3DXVECTOR3 pos, float fov, osharp::gui::Vector2i windowSize, float nearPlane, float farPlane, const osharp::gui::d3d9 &device )
+engine::Camera3d::Camera3d( D3DXVECTOR3 pos, float fov, osharp::gui::Vector2i windowSize, float nearPlane, float farPlane, const osharp::gui::d3d9 &device )
 {
 	position_ = pos;
 	float aspect = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
@@ -9,10 +9,10 @@ engine::Camera::Camera( D3DXVECTOR3 pos, float fov, osharp::gui::Vector2i window
 	reinterpret_cast<IDirect3DDevice9*>(device.get_device( ))->SetTransform( D3DTS_PROJECTION, &projection_ );
 }
 
-engine::Camera::~Camera( )
+engine::Camera3d::~Camera3d( )
 {}
 
-void engine::Camera::CalculateViewMatrix( const osharp::gui::d3d9 &device )
+void engine::Camera3d::CalculateViewMatrix( const osharp::gui::d3d9 &device )
 {
 	changed_ = false;
 	up_ = { 0.f, 1.f, 0.f };
@@ -24,55 +24,55 @@ void engine::Camera::CalculateViewMatrix( const osharp::gui::d3d9 &device )
 	FillViewMatrix( device );
 }
 
-void engine::Camera::RotatePitchBy( float amount )
+void engine::Camera3d::RotatePitchBy( float amount )
 {
 	pitch_ += amount;
 	pitch_ = RestrictAngle( pitch_ );
 }
 
-void engine::Camera::RotateYawBy( float amount )
+void engine::Camera3d::RotateYawBy( float amount )
 {
 	yaw_ += amount;
 	yaw_ = RestrictAngle( yaw_ );
 }
 
-void engine::Camera::RotateRollBy( float amount )
+void engine::Camera3d::RotateRollBy( float amount )
 {
 	roll_ += amount;
 	roll_ = RestrictAngle( roll_ );
 }
 
-void engine::Camera::MoveForwardBy( float amount )
+void engine::Camera3d::MoveForwardBy( float amount )
 {
 	position_ += look_ * (-amount);
 }
 
-void engine::Camera::MoveLeftBy( float amount )
+void engine::Camera3d::MoveLeftBy( float amount )
 {
 	position_ += right_ * amount;
 }
 
-void engine::Camera::MoveRightBy( float amount )
+void engine::Camera3d::MoveRightBy( float amount )
 {
 	position_ += right_ * (-amount);
 }
 
-void engine::Camera::MoveBackBy( float amount )
+void engine::Camera3d::MoveBackBy( float amount )
 {
 	position_ += look_ * amount;
 }
 
-void engine::Camera::MoveUpBy( float amount )
+void engine::Camera3d::MoveUpBy( float amount )
 {
 	position_ += up_ * (-amount);
 }
 
-void engine::Camera::MoveDownBy( float amount )
+void engine::Camera3d::MoveDownBy( float amount )
 {
 	position_ += up_ * amount;
 }
 
-float engine::Camera::RestrictAngle( float angle )
+float engine::Camera3d::RestrictAngle( float angle )
 {
 	while ( angle>2 * D3DX_PI )
 		angle -= 2 * D3DX_PI;
@@ -81,7 +81,7 @@ float engine::Camera::RestrictAngle( float angle )
 	return angle;
 }
 
-void engine::Camera::ApplyPitch( )
+void engine::Camera3d::ApplyPitch( )
 {
 	D3DXMATRIX mtx;
 	D3DXMatrixRotationAxis( &mtx, &right_, pitch_ );
@@ -89,7 +89,7 @@ void engine::Camera::ApplyPitch( )
 	D3DXVec3TransformCoord( &up_, &up_, &mtx );
 }
 
-void engine::Camera::ApplyYaw( )
+void engine::Camera3d::ApplyYaw( )
 {
 	D3DXMATRIX mtx;
 	D3DXMatrixRotationAxis( &mtx, &up_, yaw_ );
@@ -97,7 +97,7 @@ void engine::Camera::ApplyYaw( )
 	D3DXVec3TransformCoord( &right_, &right_, &mtx );
 }
 
-void engine::Camera::ApplyRoll( )
+void engine::Camera3d::ApplyRoll( )
 {
 	D3DXMATRIX mtx;
 	D3DXMatrixRotationAxis( &mtx, &look_, roll_ );
@@ -105,7 +105,7 @@ void engine::Camera::ApplyRoll( )
 	D3DXVec3TransformCoord( &up_, &up_, &mtx );
 }
 
-void engine::Camera::FillViewMatrix( const osharp::gui::d3d9 & device )
+void engine::Camera3d::FillViewMatrix( const osharp::gui::d3d9 & device )
 {
 	D3DXMatrixIdentity( &view_ );
 	
@@ -125,5 +125,3 @@ void engine::Camera::FillViewMatrix( const osharp::gui::d3d9 & device )
 
 	reinterpret_cast<IDirect3DDevice9*>(device.get_device( ))->SetTransform( D3DTS_VIEW, &view_ );
 }
-
-

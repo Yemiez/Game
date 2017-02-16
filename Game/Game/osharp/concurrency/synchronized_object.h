@@ -510,6 +510,12 @@ namespace osharp { namespace concurrency {
 		}
 
 		auto
+			read_only()->const t_type*
+		{
+			return &t_;
+		}
+
+		auto
 			operator->( )->guard_type
 		{
 			return guard_type( mtx_, t_ );
